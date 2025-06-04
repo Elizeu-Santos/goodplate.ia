@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Image, ScrollView, Text, View } from 'react-native';
-
+import { Alert, Image, ScrollView, Text, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { styles } from './styles';
 
 import { Tip } from '../../components/Tip';
@@ -11,8 +12,29 @@ export function Home() {
   const [selectedImageUri, setSelectedImageUri] = useState('');
 
   async function handleSelectImage() {
-    
-   }
+    try {
+
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== ImagePicker.PermissionStatus.GRANTED) {
+        return Alert.alert('Permissão necessária', 'Permitir que o app acesse sua biblioteca de fotos?');
+      }
+
+      const response = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 4],
+        quality: 1,
+      });
+
+      if (!response.canceled) {
+        setSelectedImageUri(response.assets[0].uri);
+      }
+
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <View style={styles.container}>
